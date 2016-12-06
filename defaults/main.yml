@@ -1,0 +1,46 @@
+---
+
+# what to install :
+jmeter_version: "2.13"
+jmeter_plugins_version: "1.2.0"
+
+# optional, external jmeter scenarii locations :
+# TODO http|ssh key|auth to reach external repository
+jmeter_external_scenarii_git_repositories: {}
+#jmeter_external_scenarii_git_repositories:
+#  "projet1":
+#    url: "http://git.example.com/projet1/app-jmeter-scenarii"
+#    version: "1.0.0"
+
+# where to install :
+jmeter_prefix: "/usr/local"
+jmeter_root_dir: "{{ jmeter_prefix }}/apache-jmeter-{{ jmeter_version }}"
+jmeter_plugins_prefix: "{{ jmeter_root_dir }}/plugins"
+jmeter_scenarii_dir: "/etc/jmeter/{{ jmeter_version }}/scenarii"
+jmeter_tmp_dir: "/tmp/jmeter"
+
+# main jmeter binary path :
+jmeter_bin: "{{ jmeter_root_dir }}/bin/jmeter"
+
+# optionals plugins to download and install
+#jmeter_plugins_list: []
+jmeter_plugins_list:
+  - JMeterPlugins-ExtrasLibs
+  - JMeterPlugins-Extras
+  - JMeterPlugins-Standard
+
+# path shoud be relative to playbook
+# jmeter_jmx_present:
+#   "relative path to find .jmx": "destination name"
+#   "roles/app2/templates/{{jmeter_scenarii_dir}}/app2-test-get-slash.jmx.j2": "app2-test-get-slash.jmx"
+#   "roles/app2/templates/{{jmeter_scenarii_dir}}/app2-test-get-slash-failed.jmx.j2": "app2-test-get-slash-failed.jmx"
+jmeter_jmx_present: {}
+
+# path must be absolute to jmeter server
+# example :
+# jmeter_jmx_absent:
+#   "{{jmeter_scenarii_dir}}/app2-test-get-slash-FAKE.jmx": "0"
+jmeter_jmx_absent: {}
+
+
+

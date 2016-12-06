@@ -1,0 +1,27 @@
+
+- name: "set_fact jmeter_plugin_item {{item}}"
+  set_fact: jmeter_plugin_item="{{item}}"
+
+
+#JMeterPlugins-ExtrasLibs-1.2.0.zip create /usr/local/apache-jmeter-2.13/plugins lib/ext/JMeterPlugins-ExtrasLibs.jar
+#JMeterPlugins-Extras-1.2.0.zip create lib/ext/JMeterPlugins-Extras.jar
+#JMeterPlugins-Standard-1.2.0.zip create lib/ext/JMeterPlugins-Standard.jar
+
+- stat: path={{ jmeter_plugins_prefix }}/lib/ext/{{ jmeter_plugin_item }}.jar
+  register: jmeter_plugin_stat
+
+- debug: var=jmeter_plugin_stat.stat.exists verbosity=1
+
+- name: "download jmeter plugins {{ jmeter_plugin_item }}-{{ jmeter_plugins_version }}.zip version={{ jmeter_plugins_version }} from apache.org"
+  get_url: url="http://jmeter-plugins.org/downloads/file/{{ jmeter_plugin_item }}-{{ jmeter_plugins_version }}.zip" dest="/tmp/" mode=0644 timeout=300
+  when: not jmeter_plugin_stat.stat.exists
+
+# install jmeter plugin, with desired version (see roles/jmeter/defaults/ ) :
+- name: "install jmeter plugin {{ jmeter_plugin_item }}-{{ jmeter_plugins_version }}.zip version={{ jmeter_plugins_version }}"
+  unarchive: src="/tmp/{{ jmeter_plugin_item }}-{{ jmeter_plugins_version }}.zip" dest="{{ jmeter_plugins_prefix }}" remote_src=yes copy=no
+  when: not jmeter_plugin_stat.stat.exists
+
+- name: "delete downloaded jmeter plugin {{ jmeter_plugin_item }}-{{ jmeter_plugins_version }}.zip"
+  file: path="/tmp/{{ jmeter_plugin_item }}-{{ jmeter_plugins_version }}.zip" state="absent"
+  when: not jmeter_plugin_stat.stat.exists
+

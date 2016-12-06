@@ -1,0 +1,46 @@
+---
+
+#
+# @brief sync jmeter scenarii files (from local repo) to remote jmeter hosts.
+#
+
+# Template for jmx are boring to debug
+# so we use .jmx whithout ansible template but with external properties file witch is templating
+# In conception/debug period you have just to make a dedicated properties file to use the .jmx
+# For this roles, properties file must have the save name of the jmx but extension must be .properties instead of .jmx
+# If you realy want templated your .jmx, it will work ;-)
+
+# path could be relative to playbook
+# example :
+# jmeter_jmx_present:
+#   "roles/app2/templates/{{jmeter_scenarii_dir}}/app2-test-get-slash.jmx": "app2-test-get-slash.jmx"
+#   "roles/app2/templates/{{jmeter_scenarii_dir}}/app2-test-get-slash-failed.jmx": "app2-test-get-slash.jmx"
+- name: "copy jmeter scenarii present in jmeter_jmx_present"
+  template: src="{{ item.key }}" dest="{{ jmeter_scenarii_dir }}/{{ item.value }}"
+  with_dict: "{{ jmeter_jmx_present }}"
+  tags: ["jmeter-scenario", "jmeter_scenarii_copy"]
+
+- name: "copy jmeter *.properties that corresponding to jmeter_jmx_present"
+  template: src="{{ item.key | regex_replace('\.jmx','') }}.properties" dest="{{ jmeter_scenarii_dir }}/{{ item.value | regex_replace('\.jmx','') }}.properties"
+  with_dict: "{{ jmeter_jmx_present }}"
+  # .properties may not exist
+  ignore_errors: True
+  tags: ["jmeter-scenario", "jmeter_scenarii_copy"]
+
+# path must be absolute to jmeter server
+# example :
+# jmeter_jmx_absent:
+#   "{{jmeter_scenarii_dir}}/app2-test-get-slash-FAKE.jmx": "0"
+- name: "remove unwanted scenarii declare in jmeter_jmx_absent"
+  file: path="{{item.key}}" state=absent
+  with_dict: "{{jmeter_jmx_absent}}"
+  tags: ["jmeter-scenario", "jmeter_scenarii_copy"]
+
+
+- name: "remove unwanted .properties that corresponding to jmeter_jmx_absent"
+  file: path="{{item.key | regex_replace('\.jmx','') }}.properties" state=absent
+  with_dict: "{{jmeter_jmx_absent}}"
+  # .properties may not exist
+  ignore_errors: True
+  tags: ["jmeter-scenario", "jmeter_scenarii_copy"]
+

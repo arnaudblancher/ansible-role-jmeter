@@ -1,0 +1,52 @@
+
+- name: "set_fact jmeter_scenario"
+  set_fact: jmeter_scenario="{{item.path}}"
+
+- name: "jmeter_scenario value"
+  debug: var=jmeter_scenario verbosity=2
+
+- stat: path="{{ jmeter_scenario |regex_replace('\.jmx','') }}.properties"
+  register: jmeter_properties_stat
+
+#- set_fact: jmeter_properties=" "
+#  when: jmeter_properties_stat.stat.exists==False
+#
+#- set_fact: jmeter_properties=" {{ jmeter_scenario |regex_replace('\.jmx','') }}.properties "
+#  when: jmeter_properties_stat.stat.exists==True
+#
+#- name: "jmeter_properties value"
+#  debug: var=jmeter_properties verbosity=2
+
+- name: "jmeter_run_tests.jmx_and_properties.inc.yml"
+  include: jmeter_run_tests.jmx_and_properties.inc.yml
+  when: jmeter_properties_stat.stat.exists==True
+
+- name: "jmeter_run_tests.jmx_only.inc.yml"
+  include: jmeter_run_tests.jmx_only.inc.yml
+  when: jmeter_properties_stat.stat.exists==False
+
+- name: "debug: dump jmeter_out"
+  debug: var=jmeter_out verbosity=2
+- name: "debug: .jmx name"
+  debug: var=jmeter_scenario verbosity=1
+- name: "debug: jmeter output"
+  debug: var=jmeter_out.stdout_lines verbosity=1
+
+  # call
+  # rm /tmp/jmeter_results.log & /usr/local/jmeter/bin/jmeter -n -t app2-test-get-slash -l /tmp/jmeter_results.log
+  # in the logs (/tmp/jmeter_results.log)
+  # return ok :
+  #  <failure>false</failure>
+  # return ko :
+  #     <failure>true</failure>
+  #     <failureMessage>Test failed: document expected to contain /APP2 BIDON/</failureMessage>
+  # 
+
+- name: "fail only on jmx error"
+  fail: msg='ERREUR in {{jmeter_scenario}} MSG {{jmeter_out.stdout_lines}}'
+  when: "'<failure>true</failure>' in jmeter_out.stdout or 'java.net.UnknownHostException' in jmeter_out.stdout or 'HttpHostConnectException' in jmeter_out.stdout"
+
+- name: "jmx {{jmeter_scenario}} OK"
+  debug: var=jmeter_out.stdout_lines
+  # when not failed in the above line
+

@@ -1,0 +1,28 @@
+---
+
+#
+# @file roles/jmeter/tasks/main.yml
+# @brief main jmeter-related tasks collection
+#
+
+# install jmeter or use a docker image with built in jmeter
+- name: "install jmeter server"
+  include: jmeter_installation.yml
+  tags: ["jmeter_installation"]
+
+- name: "send our local jmeter configuration file (user.properties)"
+  include: "{{ role_path }}/tasks/jmeter_configuration.yml"
+  tags: ["jmeter_configuration"]
+
+- name: "check jmeter installed version"
+  include: "{{ role_path }}/tasks/jmeter_version_check.yml"
+  tags: ["jmeter_version_check"]
+
+- name: "send our local (roles/jmeter/templates/*.jmx.j2) jmeter scenarii files"
+  include: "{{ role_path }}/tasks/jmeter_scenarii_copy.yml"
+  tags: ["jmeter_scenarii_copy"]
+
+- name: "execute our jmeter scenarii"
+  include: "{{ role_path }}/tasks/jmeter_run_tests.yml"
+  tags: ["jmeter_run_tests"]
+

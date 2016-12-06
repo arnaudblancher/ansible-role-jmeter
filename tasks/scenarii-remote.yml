@@ -1,0 +1,16 @@
+---
+
+#
+# @brief retrieves remotely stored jmeter scenarii to execute.
+#
+
+# Retrieve external jmeter scenarii:
+- name: "Fetch external scenarii repositories"
+  #debug: msg="External repo for product={{ item.key }} - url={{ item.value.url }} version={{ item.value.version }}"
+  git: repo="{{ item.value.url }}"
+       dest="{{ jmeter_tmp_dir }}"
+       version="{{ item.value.version }}"
+  with_dict: "{{ jmeter_external_scenarii_git_repositories }}"
+  tags: ["jmeter", "jmeter-scenario", "jmeter-scenario-external"]
+
+

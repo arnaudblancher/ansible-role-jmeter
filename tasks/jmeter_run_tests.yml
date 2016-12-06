@@ -1,0 +1,28 @@
+---
+
+#
+# @file roles/jmeter-run-tests/tasks/main.yml
+# @brief runs all available jmeter scenarii on jmeter container|host.
+#
+
+
+- name: "list available scenarii on remote jmeter host - {{ jmeter_scenarii_dir }}"
+  find: paths="{{ jmeter_scenarii_dir }}" patterns="^.*\.jmx$" use_regex=true recurse=yes
+  register: jmeter_available_remote_scenarii
+
+# will only show with at least one '-v' cli arg :
+- name: "debug: dump available scenarii list"
+  debug: var=jmeter_available_remote_scenarii verbosity=1
+
+# will only show with at least one '-v' cli arg :
+- name: "debug: list scenario files only"
+  debug: var=item['path'] verbosity=1
+  with_items: "{{ jmeter_available_remote_scenarii['files'] }}"
+
+# execute all jmeter scenarii files available on remote machine:
+- name: "execute available scenarii - logs are in {{ ansible_hostname }} /tmp/jmeter_results.log"
+  include: jmeter_run_tests.inc.yml
+  with_items: "{{ jmeter_available_remote_scenarii['files'] }}"
+  changed_when: False
+
+

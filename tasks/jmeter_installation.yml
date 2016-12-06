@@ -1,0 +1,65 @@
+---
+
+#
+# @file roles/jmeter/tasks/jmeter_installation.yml
+# @brief main jmeter-related tasks collection
+#
+
+
+# build target jmeter directory structure :
+- name: "create jmeter directory structure"
+  file: path="{{ item }}" state=directory mode=0755
+  with_items:
+    - "{{ jmeter_prefix }}"
+    - "{{ jmeter_plugins_prefix }}"
+    - "{{ jmeter_scenarii_dir }}"
+    - "{{ jmeter_tmp_dir }}"
+  tags: ["jmeter_installation"]
+
+# 'unzip' command, required for jmeter archives processing.
+# 'git' command required to retrieve external jmeter scenarii files.
+- name: "install git-core and unzip packages"
+  apt: name="{{ item }}" state=present allow_unauthenticated=true
+  with_items:
+    - "git-core"
+    - "unzip"
+  tags: ["jmeter_installation"]
+
+###
+# the server
+###
+
+- stat: path={{ jmeter_bin }}
+  register: jmeter_bin_stat
+  tags: ["jmeter_installation"]
+
+- debug: var=jmeter_bin_stat.stat.exists verbosity=1
+  tags: ["jmeter_installation"]
+
+- name: "download jmeter version={{ jmeter_version }} binary archive from apache.org"
+  get_url: url="http://archive.apache.org/dist/jmeter/binaries/apache-jmeter-{{ jmeter_version }}.tgz" dest="/tmp/" mode=0644 timeout=30
+  when: not jmeter_bin_stat.stat.exists
+  tags: ["jmeter_installation"]
+
+# extract jmeter binary archive:
+- name: "install jmeter version={{ jmeter_version }} from local archive"
+  unarchive: src="/tmp/apache-jmeter-{{ jmeter_version }}.tgz" dest="{{ jmeter_prefix }}" remote_src=yes copy=no creates="{{ jmeter_bin }}"
+  tags: ["jmeter_installation"]
+
+# 'jmeter' symlink to current version, for easy access:
+- name: "create {{ jmeter_prefix }}/jmeter symlink"
+  file: src="{{ jmeter_prefix }}/apache-jmeter-{{ jmeter_version }}" dest="{{ jmeter_prefix }}/jmeter" state=link
+  tags: ["jmeter_installation"]
+
+- name: "delete downloaded jmeter"
+  file: path="/tmp/apache-jmeter-{{ jmeter_version }}.tgz" state="absent"
+  when: not jmeter_bin_stat.stat.exists
+  tags: ["jmeter_installation"]
+
+###
+
+- name: "install plugins"
+  include: jmeter_installation_plugins.inc.yml
+  with_items: "{{ jmeter_plugins_list }}"
+  tags: ["jmeter_installation"]
+

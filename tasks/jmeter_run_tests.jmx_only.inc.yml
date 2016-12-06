@@ -1,0 +1,5 @@
+- name: "2 - execute scenario {{jmeter_scenario}} - logs are in {{ ansible_hostname }} /tmp/jmeter_results.log"
+  shell: /bin/rm -f /tmp/jmeter_results.log ; /usr/local/jmeter/bin/jmeter -n -t "{{ jmeter_scenario }}" -l /tmp/jmeter_results.log && cat /tmp/jmeter_results.log
+  register: jmeter_out
+  changed_when: False
+

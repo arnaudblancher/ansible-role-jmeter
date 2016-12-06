@@ -1,0 +1,12 @@
+---
+
+#
+# @brief Ensure installed jmeter binary matches our desired version.
+#
+- name: "jmeter version check {{ jmeter_version }}"
+  command: "{{ jmeter_root_dir }}/bin/jmeter -n --version"
+  register: jmeter_version_output
+  failed_when: jmeter_version_output.stdout.find("Version {{ jmeter_version }}") == -1
+  changed_when: False
+  tags: ["jmeter_version_check"]
+

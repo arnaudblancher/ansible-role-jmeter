@@ -1,0 +1,8 @@
+---
+
+# Configure jmeter using a user.properties file (from roles/jmeter/templates/jmeter-2.13-settings.properties.j2 ) :
+- name: "copy jmeter configuration file to {{ jmeter_prefix }}/apache-jmeter-{{ jmeter_version }}/bin/user.properties"
+  template: src="jmeter-{{ jmeter_version }}-settings.properties.j2" dest={{ jmeter_prefix }}/apache-jmeter-{{ jmeter_version }}/bin/user.properties
+  tags: ["jmeter_configuration"]
+
+
