@@ -1,0 +1,11 @@
+---
+
+- name: jmeter
+  hosts: jmeter
+  serial: 1
+
+  roles:
+    - { role: oracle.java8, tags: ["java", "java8", "oracle-java", "java-version-check"] }
+    - { role: "arnaudblancher.jmeter"  }
+
+
