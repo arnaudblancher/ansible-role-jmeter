@@ -80,11 +80,12 @@ License
 
 GPLv3
 
-Author Information
+Authors Information
 ------------------
 
 Arnaud Blancher
 
 [https://github.com/arnaudblancher/ansible-role-jmeter](https://github.com/arnaudblancher/ansible-role-jmeter)
 
+Anthony Le Mansec
 
